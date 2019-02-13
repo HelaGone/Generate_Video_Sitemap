@@ -13,7 +13,7 @@
 	 */
 
 	function gxf_activation_fn(){
-		
+
 	}	
 	register_activation_hook( __FILE__, 'gxf_activation_fn' );
 
@@ -30,7 +30,7 @@
 		if('video'===get_post_type($post_id)){
 			$args = array(
 				'post_type'=>'video',
-				'posts_per_page'=>5,
+				'posts_per_page'=>50,
 				'post_status'=>'publish',
 				'orderby'=>'date',
 				'order'=>'DESC'
@@ -40,7 +40,7 @@
 		}
 
 	}
-	add_action('save_post', 'gxf_count_video_posts', 10, 2);
+	add_action('publish_post', 'gxf_count_video_posts', 10, 2);
 
 	function gxf_generate_xml_file($posts_object){
 		$xml = new DOMDocument('1.0', 'UTF-8');
