@@ -13,17 +13,14 @@
 	 */
 
 	function gxf_activation_fn(){
-		if (!file_exists('../wp-content/themes/news/sitemap')) {
-		    mkdir('../wp-content/themes/news/sitemap', 0777, true);
-		}
+		
 	}	
 	register_activation_hook( __FILE__, 'gxf_activation_fn' );
 
 
 	function gxf_deactivation_fn(){
-		if(is_file('../wp-content/themes/news/sitemap/video_sitemap.xml')){
-			unlink('../wp-content/themes/news/sitemap/video_sitemap.xml');
-			rmdir('../wp-content/themes/news/sitemap');
+		if(is_file('../video_sitemap.xml')){
+			unlink('../video_sitemap.xml');
 		}
 	}
 	register_deactivation_hook( __FILE__, 'gxf_deactivation_fn' );
@@ -156,7 +153,7 @@
 			}
 		}
 
-		$xml->save('../wp-content/themes/news/sitemap/video_sitemap.xml');
+		$xml->save('../video_sitemap.xml');
 	}
 
 	function gxf_get_video_data($videoId){
