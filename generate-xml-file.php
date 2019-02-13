@@ -1,7 +1,7 @@
 <?php 
 	/**
 	 * Plugin Name: Generate XML File
-	 * Plugin URI:  https://cubeinthebox.com
+	 * Plugin URI:  https://github.com/HelaGone/Generate_Video_Sitemap
 	 * Description: Generate xml files for google video sitemap
 	 * Version:     1.0.0
 	 * Author:      Holkan Luna
@@ -40,7 +40,7 @@
 		}
 
 	}
-	add_action('publish_post', 'gxf_count_video_posts', 10, 2);
+	add_action('publish_video', 'gxf_count_video_posts', 10, 2);
 
 	function gxf_generate_xml_file($posts_object){
 		$xml = new DOMDocument('1.0', 'UTF-8');
