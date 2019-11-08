@@ -26,31 +26,32 @@
 	register_deactivation_hook( __FILE__, 'gxf_deactivation_fn' );
 
 	function gxf_count_video_posts($post_id, $post){
-
 		if('video'===get_post_type($post_id)){
 			$args = array(
 				'post_type'=>'video',
-				'posts_per_page'=>50,
+				'posts_per_page'=>1000,
 				'post_status'=>'publish',
 				'orderby'=>'date',
-				'order'=>'DESC'
+				'order'=>'DESC',
+				'date_query'=>array(
+					array(
+						'after'=>'2 days ago',
+						'inclusive'=>true
+					)
+				)
 			);
 			$videos = get_posts($args);
 			gxf_generate_xml_file($videos);
 		}
-
 	}
 	add_action('publish_video', 'gxf_count_video_posts', 10, 2);
 
 	function gxf_generate_xml_file($posts_object){
 		$xml = new DOMDocument('1.0', 'UTF-8');
-
 		$urlset = $xml->createElement('urlset');
 		$urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
 		$urlset->setAttribute('xmlns:video', 'http://www.google.com/schemas/sitemap-video/1.1');
-
 		$xml->appendChild($urlset);
-
 		foreach ($posts_object as $p_object) {
 			$vid_permalink = get_the_permalink($p_object->ID);
 			$vid_post_thumbnail_url = get_the_post_thumbnail_url($p_object->ID);
@@ -90,11 +91,11 @@
 					$video_node->appendChild($xml->createElement('video:thumbnail_loc', $vid_post_thumbnail_url));
 
 					$video_title = $xml->createElement('video:title');
-					$video_title->appendChild($xml->createCDATASection(esc_html($p_object->post_title)));
+					$video_title->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_title)));
 					$video_node->appendChild($video_title);
 
 					$video_description = $xml->createElement('video:description');
-					$video_description->appendChild($xml->createCDATASection(esc_html($p_object->post_excerpt)));
+					$video_description->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_excerpt)));
 					$video_node->appendChild($video_description);
 
 					$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($anv_media_url)));
@@ -120,7 +121,6 @@
 				$pubDate = gmdate('Y-m-d\TH:i:s\-06:00', $millis);
 				$duration = gxf_get_youtube_duration($youtube_id);
 
-
 				$url = $xml->createElement('url');
 				$url->appendChild($xml->createElement('loc', $vid_permalink));
 
@@ -128,11 +128,11 @@
 				$video_node->appendChild($xml->createElement('video:thumbnail_loc', $vid_post_thumbnail_url));
 
 				$video_title = $xml->createElement('video:title');
-				$video_title->appendChild($xml->createCDATASection(esc_html($p_object->post_title)));
+				$video_title->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_title)));
 				$video_node->appendChild($video_title);
 
 				$video_description = $xml->createElement('video:description');
-				$video_description->appendChild($xml->createCDATASection(esc_html($p_object->post_excerpt)));
+				$video_description->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_excerpt)));
 				$video_node->appendChild($video_description);
 
 				$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($yt_vid_url)));
