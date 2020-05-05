@@ -39,7 +39,7 @@
 				'order'=>'DESC',
 				'date_query'=>array(
 					array(
-						'after'=>'30 days ago',
+						'after'=>'2 days ago',
 						'inclusive'=>true
 					)
 				)
@@ -56,14 +56,14 @@
 	//Scheduling task after check for already scheduled tasks
 	if(!wp_next_scheduled('gvsm_cron_custom_hook')){
 		//The task is not assigned, then assign it
-		wp_schedule_event( time(), 'hourly', 'gvsm_cron_custom_hook' );
+		wp_schedule_event( time(), 'five_minutes', 'gvsm_cron_custom_hook' );
 	}
 
 	//Add interval to adjust how often this will run
 	function gvsm_add_cron_interval( $schedules ) {
-	    $schedules['five_seconds'] = array(
-				'interval' => 5,
-				'display'  => 'Cada Cinco Segundos'
+	    $schedules['five_minutes'] = array(
+				'interval' => 300,
+				'display'  => 'Cada Cinco Minutos'
 			);
 	    return $schedules;
 	}
@@ -176,7 +176,7 @@
 			}
 		}
 
-		$xml->save('../video_sitemap.xml');
+		$xml->save('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
 	}
 
 	function gvsm_get_video_data($videoId){
