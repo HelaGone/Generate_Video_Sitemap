@@ -19,8 +19,8 @@
 
 
 	function gxf_deactivation_fn(){
-		if(is_file('../video_sitemap.xml')){
-			unlink('../video_sitemap.xml');
+		if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
+			unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
 		}
 
 		$timestamp = wp_next_scheduled( 'gvsm_cron_custom_hook' );
@@ -45,11 +45,6 @@
 				)
 			);
 			$videos = get_posts($args);
-
-			// echo '<pre>';
-			// 	print_r($videos);
-			// echo '<pre>';
-			// die();
 
 			gvsm_generate_xml_file($videos);
 		}
