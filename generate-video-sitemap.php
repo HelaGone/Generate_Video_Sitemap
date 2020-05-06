@@ -21,8 +21,8 @@
 
 
 	function gxf_deactivation_fn(){
-		if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
-			unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
+		if(is_file('/home/noticieros/web/video_sitemap.xml')){
+			unlink('/home/noticieros/web/video_sitemap.xml');
 		}
 
 		$timestamp = wp_next_scheduled( 'gvsm_cron_custom_hook' );
@@ -178,7 +178,7 @@
 			}
 		}
 
-		$xml->save('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
+		$xml->save('/home/noticieros/web/video_sitemap.xml');
 	}
 
 	function gvsm_get_video_data($videoId){
