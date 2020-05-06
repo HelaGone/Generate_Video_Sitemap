@@ -10,6 +10,8 @@
 	 * License URI: https://www.gnu.org/licenses/gpl-2.0.html
 	 * Text Domain: video-sitemap
 	 * Domain Path: /languages
+
+	 *https://noticieros.televisa.com/feed/?post_type=breaking&taxonomy=post_tag&tag_ID=374041
 	 */
 
 	function gxf_activation_fn(){
