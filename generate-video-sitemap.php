@@ -31,8 +31,8 @@
 	register_deactivation_hook( __FILE__, 'gxf_deactivation_fn' );
 
 
-	function gvsm_count_video_posts($post_id, $post){
-		if('video'===get_post_type($post_id)){
+	function gvsm_count_video_posts(){
+		if('video'===get_post_type()){
 			$args = array(
 				'post_type'=>'video',
 				'posts_per_page'=>500,
