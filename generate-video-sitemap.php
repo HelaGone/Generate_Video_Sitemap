@@ -15,14 +15,25 @@
 	 */
 
 	function gxf_activation_fn(){
+		//TODO Implement CRON
+		add_action('gvsm_cron_custom_hook', 'printhello', 10, 2);
 
+		//Scheduling task after check for already scheduled tasks
+		if(!wp_next_scheduled('gvsm_cron_custom_hook')){
+			//The task is not assigned, then assign it
+			wp_schedule_event( time(), 'five_minutes', 'gvsm_cron_custom_hook' );
+		}
 	}
 	register_activation_hook( __FILE__, 'gxf_activation_fn' );
 
 
 	function gxf_deactivation_fn(){
-		if(is_file('/home/noticieros/web/video_sitemap.xml')){
-			unlink('/home/noticieros/web/video_sitemap.xml');
+		// if(is_file('/home/noticieros/web/video_sitemap.xml')){
+		// 	unlink('/home/noticieros/web/video_sitemap.xml');
+		// }
+
+		if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
+			unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
 		}
 
 		$timestamp = wp_next_scheduled( 'gvsm_cron_custom_hook' );
@@ -30,6 +41,12 @@
 	}
 	register_deactivation_hook( __FILE__, 'gxf_deactivation_fn' );
 
+	function printhello(){
+		$str = "hello";
+		$handler = fopen('/Users/dev/Sites/noticieros.televisa.com/hola.txt', 'w');
+		fputs($handler, $str);
+		fclose($handler);
+	}
 
 	function gvsm_count_video_posts(){
 		if('video'===get_post_type()){
@@ -51,15 +68,8 @@
 			gvsm_generate_xml_file($videos);
 		}
 	}
-	//TODO Implement CRON
-	add_action('gvsm_cron_custom_hook', 'gvsm_count_video_posts');
 	// add_action('publish_video', 'gvsm_count_video_posts', 10, 2);
 
-	//Scheduling task after check for already scheduled tasks
-	if(!wp_next_scheduled('gvsm_cron_custom_hook')){
-		//The task is not assigned, then assign it
-		wp_schedule_event( time(), 'five_minutes', 'gvsm_cron_custom_hook' );
-	}
 
 	//Add interval to adjust how often this will run
 	function gvsm_add_cron_interval( $schedules ) {
@@ -72,6 +82,7 @@
 	add_filter( 'cron_schedules', 'gvsm_add_cron_interval' );
 
 	function gvsm_generate_xml_file($posts_object){
+
 		$xml = new DOMDocument('1.0', 'UTF-8');
 		$urlset = $xml->createElement('urlset');
 		$urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
@@ -178,7 +189,8 @@
 			}
 		}
 
-		$xml->save('/home/noticieros/web/video_sitemap.xml');
+		// $xml->save('/home/noticieros/web/video_sitemap.xml');
+		$xml->save('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
 	}
 
 	function gvsm_get_video_data($videoId){
