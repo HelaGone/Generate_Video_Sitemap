@@ -16,7 +16,7 @@
 
 	function gxf_activation_fn(){
 		//TODO Implement CRON
-		add_action('gvsm_cron_custom_hook', 'printhello', 10, 2);
+		add_action('gvsm_cron_custom_hook', 'gvsm_count_video_posts', 10, 2);
 
 		//Scheduling task after check for already scheduled tasks
 		if(!wp_next_scheduled('gvsm_cron_custom_hook')){
@@ -41,12 +41,6 @@
 	}
 	register_deactivation_hook( __FILE__, 'gxf_deactivation_fn' );
 
-	function printhello(){
-		$str = "hello";
-		$handler = fopen('/Users/dev/Sites/noticieros.televisa.com/hola.txt', 'w');
-		fputs($handler, $str);
-		fclose($handler);
-	}
 
 	function gvsm_count_video_posts(){
 		if('video'===get_post_type()){
