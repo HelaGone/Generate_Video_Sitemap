@@ -14,7 +14,7 @@
 	 *https://noticieros.televisa.com/feed/?post_type=breaking&taxonomy=post_tag&tag_ID=374041
 	 */
 
-	function gxf_activation_fn(){
+	function gvsm_activation_fn(){
 		//TODO Implement CRON
 		add_action('gvsm_cron_custom_hook', 'gvsm_count_video_posts', 10, 2);
 
@@ -24,7 +24,7 @@
 			wp_schedule_event( time(), 'five_minutes', 'gvsm_cron_custom_hook' );
 		}
 	}
-	register_activation_hook( __FILE__, 'gxf_activation_fn' );
+	register_activation_hook( __FILE__, 'gvsm_activation_fn' );
 
 
 	function gxf_deactivation_fn(){
