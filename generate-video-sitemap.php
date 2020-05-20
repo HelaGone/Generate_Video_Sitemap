@@ -28,13 +28,13 @@
 
 
 	function gxf_deactivation_fn(){
-		// if(is_file('/home/noticieros/web/video_sitemap.xml')){
-		// 	unlink('/home/noticieros/web/video_sitemap.xml');
-		// }
-
-		if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
-			unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
+		if(is_file('/home/noticieros/web/video_sitemap.xml')){
+			unlink('/home/noticieros/web/video_sitemap.xml');
 		}
+
+		// if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
+		// 	unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
+		// }
 
 		$timestamp = wp_next_scheduled( 'gvsm_cron_custom_hook' );
 		wp_unschedule_event( $timestamp, 'gvsm_cron_custom_hook' );
@@ -43,26 +43,32 @@
 
 
 	function gvsm_count_video_posts(){
-		if('video'===get_post_type()){
-			$args = array(
-				'post_type'=>'video',
-				'posts_per_page'=>500,
-				'post_status'=>'publish',
-				'orderby'=>'date',
-				'order'=>'DESC',
-				'date_query'=>array(
-					array(
-						'after'=>'2 days ago',
-						'inclusive'=>true
-					)
-				)
-			);
-			$videos = get_posts($args);
+		$log_txt = "[VS]: hola";
+		// $log_txt .= "enter_here_at: ".date("Y/m/d");
+		file_put_contents('/home/noticieros/logs/video_sitemap.log', $log_txt);
 
-			gvsm_generate_xml_file($videos);
-		}
+		// if('video'===get_post_type()){
+		// 	$args = array(
+		// 		'post_type'=>'video',
+		// 		'posts_per_page'=>500,
+		// 		'post_status'=>'publish',
+		// 		'orderby'=>'date',
+		// 		'order'=>'DESC',
+		// 		'date_query'=>array(
+		// 			array(
+		// 				'after'=>'2 days ago',
+		// 				'inclusive'=>true
+		// 			)
+		// 		)
+		// 	);
+		// 	$videos = get_posts($args);
+		//
+		// 	gvsm_generate_xml_file($videos);
+		// }
+
+
 	}
-	// add_action('publish_video', 'gvsm_count_video_posts', 10, 2);
+	//add_action('publish_video', 'gvsm_count_video_posts', 10, 2);
 
 
 	//Add interval to adjust how often this will run
@@ -129,7 +135,7 @@
 					$video_node->appendChild($video_description);
 
 					$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($anv_media_url)));
-					$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars(wp_get_canonical_url($p_object->ID))));
+					$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars(wp_get_canonical_url($p_object->ID)) ) );
 					$video_node->appendChild($xml->createElement('video:duration', $anv_duration));
 					$video_node->appendChild($xml->createElement('video:publication_date', $anv_pub_date));
 					$video_node->appendChild($xml->createElement('video:family_friendly', 'yes'));
@@ -166,7 +172,7 @@
 				$video_node->appendChild($video_description);
 
 				$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($yt_vid_url)));
-				$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars($yt_vid_url)));
+				$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars(wp_get_canonical_url($p_object->ID))));
 				$video_node->appendChild($xml->createElement('video:duration', $duration));
 				$video_node->appendChild($xml->createElement('video:publication_date', $pubDate));
 				$video_node->appendChild($xml->createElement('video:family_friendly', 'yes'));
@@ -183,8 +189,8 @@
 			}
 		}
 
-		// $xml->save('/home/noticieros/web/video_sitemap.xml');
-		$xml->save('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
+		$xml->save('/home/noticieros/web/video_sitemap.xml');
+		// $xml->save('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
 	}
 
 	function gvsm_get_video_data($videoId){
