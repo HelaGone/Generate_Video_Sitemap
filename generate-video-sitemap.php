@@ -32,9 +32,11 @@
 			unlink('/home/noticieros/web/video_sitemap.xml');
 		}
 
-		// if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
-		// 	unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
-		// }
+		/*
+		if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
+			unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
+		}
+		*/
 
 		$timestamp = wp_next_scheduled( 'gvsm_cron_custom_hook' );
 		wp_unschedule_event( $timestamp, 'gvsm_cron_custom_hook' );
@@ -43,9 +45,6 @@
 
 
 	function gvsm_count_video_posts(){
-		//$log_txt = "[VS]: hola";
-		// $log_txt .= "enter_here_at: ".date("Y/m/d");
-		//file_put_contents('/home/noticieros/logs/video_sitemap.log', $log_txt);
 
 		if('video'===get_post_type()){
 			$args = array(
@@ -213,7 +212,8 @@
 	}
 
 	function gvsm_get_youtube_duration($videoId){
-		$apikey = 'AIzaSyC6zVkEIkrXXsvuAy5Z0QiDQld-ZPz1zVI';
+		// Api key generada 2020-09-07 holkan.l@logistica101.com
+		$apikey = 'AIzaSyCA0ulDhDpEHIaK7YtUvtEssWb81M2Wud4';
 		$dur = file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='.$videoId.'&key='.$apikey);
 		$vid_duration = json_decode($dur, true);
 		$duration = '';
