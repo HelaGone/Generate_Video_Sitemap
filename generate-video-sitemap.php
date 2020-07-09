@@ -151,7 +151,7 @@
 
 				}
 			}else if(gettype($youtube_id)==='string'&&$youtube_id!==''){
-				$yt_vid_url = 'https://www.youtube.com/watch?v='.$youtube_id;
+				$yt_vid_url = 'https://www.youtube.com/embed/'.$youtube_id;
 				$millis = time($vid_publish_date);
 				$pubDate = gmdate('Y-m-d\TH:i:s\-06:00', $millis);
 				$duration = gvsm_get_youtube_duration($youtube_id);
@@ -170,8 +170,7 @@
 				$video_description->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_excerpt)));
 				$video_node->appendChild($video_description);
 
-				$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($yt_vid_url)));
-				$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars(wp_get_canonical_url($p_object->ID))));
+				$video_node->appendChild($xml->createElement('video:player_loc', $yt_vid_url ));
 				$video_node->appendChild($xml->createElement('video:duration', $duration));
 				$video_node->appendChild($xml->createElement('video:publication_date', $pubDate));
 				$video_node->appendChild($xml->createElement('video:family_friendly', 'yes'));
