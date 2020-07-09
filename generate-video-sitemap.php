@@ -134,7 +134,7 @@
 					$video_node->appendChild($video_description);
 
 					$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($anv_media_url)));
-					$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars(wp_get_canonical_url($p_object->ID)) ) );
+					$video_node->appendChild($xml->createElement('video:player_loc', $anv_player_url ));
 					$video_node->appendChild($xml->createElement('video:duration', $anv_duration));
 					$video_node->appendChild($xml->createElement('video:publication_date', $anv_pub_date));
 					$video_node->appendChild($xml->createElement('video:family_friendly', 'yes'));
