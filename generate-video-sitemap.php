@@ -15,14 +15,14 @@
 	 */
 
 	function gvsm_activation_fn(){
-		//TODO Implement CRON
+		/*
 		add_action('gvsm_cron_custom_hook', 'gvsm_count_video_posts', 10, 2);
 
 		//Scheduling task after check for already scheduled tasks
 		if(!wp_next_scheduled('gvsm_cron_custom_hook')){
 			//The task is not assigned, then assign it
 			wp_schedule_event( time(), 'five_minutes', 'gvsm_cron_custom_hook' );
-		}
+		}*/
 	}
 	register_activation_hook( __FILE__, 'gvsm_activation_fn' );
 
@@ -43,43 +43,43 @@
 
 
 	function gvsm_count_video_posts(){
-		$log_txt = "[VS]: hola";
+		//$log_txt = "[VS]: hola";
 		// $log_txt .= "enter_here_at: ".date("Y/m/d");
-		file_put_contents('/home/noticieros/logs/video_sitemap.log', $log_txt);
+		//file_put_contents('/home/noticieros/logs/video_sitemap.log', $log_txt);
 
-		// if('video'===get_post_type()){
-		// 	$args = array(
-		// 		'post_type'=>'video',
-		// 		'posts_per_page'=>500,
-		// 		'post_status'=>'publish',
-		// 		'orderby'=>'date',
-		// 		'order'=>'DESC',
-		// 		'date_query'=>array(
-		// 			array(
-		// 				'after'=>'2 days ago',
-		// 				'inclusive'=>true
-		// 			)
-		// 		)
-		// 	);
-		// 	$videos = get_posts($args);
-		//
-		// 	gvsm_generate_xml_file($videos);
-		// }
+		if('video'===get_post_type()){
+			$args = array(
+				'post_type'=>'video',
+				'posts_per_page'=>500,
+				'post_status'=>'publish',
+				'orderby'=>'date',
+				'order'=>'DESC',
+				'date_query'=>array(
+					array(
+						'after'=>'2 days ago',
+						'inclusive'=>true
+					)
+				)
+			);
+			$videos = get_posts($args);
+
+			gvsm_generate_xml_file($videos);
+		}
 
 
 	}
-	//add_action('publish_video', 'gvsm_count_video_posts', 10, 2);
+	add_action('publish_video', 'gvsm_count_video_posts', 10, 2);
 
 
 	//Add interval to adjust how often this will run
-	function gvsm_add_cron_interval( $schedules ) {
-	    $schedules['five_minutes'] = array(
-				'interval' => 300,
-				'display'  => 'Cada Cinco Minutos'
-			);
-	    return $schedules;
-	}
-	add_filter( 'cron_schedules', 'gvsm_add_cron_interval' );
+	// function gvsm_add_cron_interval( $schedules ) {
+	//     $schedules['five_minutes'] = array(
+	// 			'interval' => 300,
+	// 			'display'  => 'Cada Cinco Minutos'
+	// 		);
+	//     return $schedules;
+	// }
+	// add_filter( 'cron_schedules', 'gvsm_add_cron_interval' );
 
 	function gvsm_generate_xml_file($posts_object){
 
