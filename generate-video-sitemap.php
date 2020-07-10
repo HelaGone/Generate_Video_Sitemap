@@ -133,7 +133,7 @@
 					$video_description->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_excerpt)));
 					$video_node->appendChild($video_description);
 
-					$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($anv_media_url)));
+					//$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($anv_media_url)));
 					$video_node->appendChild($xml->createElement('video:player_loc', $anv_player_url ));
 					$video_node->appendChild($xml->createElement('video:duration', $anv_duration));
 					$video_node->appendChild($xml->createElement('video:publication_date', $anv_pub_date));
@@ -152,7 +152,7 @@
 				}
 			}else if(gettype($youtube_id)==='string'&&$youtube_id!==''){
 				$yt_vid_url = 'https://www.youtube.com/embed/'.$youtube_id;
-				$millis = time($vid_publish_date);
+				$millis = date('U', strtotime($vid_publish_date));
 				$pubDate = gmdate('Y-m-d\TH:i:s\-06:00', $millis);
 				$duration = gvsm_get_youtube_duration($youtube_id);
 
@@ -213,19 +213,29 @@
 	function gvsm_get_youtube_duration($videoId){
 		// Api key generada 2020-09-07 holkan.l@logistica101.com
 		$apikey = 'AIzaSyCA0ulDhDpEHIaK7YtUvtEssWb81M2Wud4';
-		$dur = file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='.$videoId.'&key='.$apikey);
-		$vid_duration = json_decode($dur, true);
-		$duration = '';
-		foreach ($vid_duration['items'] as $vidTime) {
-			$duration = $vidTime['contentDetails']['duration'];
+		if($dur = file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='.$videoId.'&key='.$apikey)){
+			$vid_duration = json_decode($dur, true);
+			$duration = '';
+			foreach ($vid_duration['items'] as $vidTime) {
+				$duration = $vidTime['contentDetails']['duration'];
+			}
+			return gvsm_ISO8601ToSeconds($duration);
 		}
-		return gvsm_ISO8601ToSeconds($duration);
+		return 0;
 	}
 
 	function gvsm_ISO8601ToSeconds($ISO8601){
-    	$interval = new \DateInterval($ISO8601);
-    	return ($interval->d * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s;
-	}
+    $pattern = '/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/';
+    preg_match_all($pattern, $ISO8601, $matches);
+
+    if($ISO8601 != '' && gettype($ISO8601) == 'string'){
+      if( is_array($matches) && !empty($matches[0]) ){
+        $interval = new DateInterval($ISO8601);
+        return ($interval->d * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s;
+      }
+    }
+    return '0';
+  }
 
 
 
