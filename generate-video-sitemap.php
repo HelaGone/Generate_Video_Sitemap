@@ -3,7 +3,7 @@
 	 * Plugin Name: Generate Video Sitemap
 	 * Plugin URI:  https://github.com/HelaGone/Generate_Video_Sitemap
 	 * Description: Generates a video sitemap for Google
-	 * Version:     1.0.0
+	 * Version:     1.0.1
 	 * Author:      Holkan Luna
 	 * Author URI:  https://hela.dev/
 	 * License:     GPL2
@@ -31,26 +31,21 @@
 		if(is_file('/home/noticieros/web/video_sitemap.xml')){
 			unlink('/home/noticieros/web/video_sitemap.xml');
 		}
-
+    // if(is_file('/home/bnback/web/video_sitemap.xml')){
+		// 	unlink('/home/bnback/web/video_sitemap.xml');
+		// }
 		// if(is_file('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml')){
 		// 	unlink('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
 		// }
-
-		$timestamp = wp_next_scheduled( 'gvsm_cron_custom_hook' );
-		wp_unschedule_event( $timestamp, 'gvsm_cron_custom_hook' );
 	}
 	register_deactivation_hook( __FILE__, 'gxf_deactivation_fn' );
 
 
 	function gvsm_count_video_posts(){
-		//$log_txt = "[VS]: hola";
-		// $log_txt .= "enter_here_at: ".date("Y/m/d");
-		//file_put_contents('/home/noticieros/logs/video_sitemap.log', $log_txt);
-
-		if('video'===get_post_type()){
+		if('video'==get_post_type()){
 			$args = array(
 				'post_type'=>'video',
-				'posts_per_page'=>500,
+				'posts_per_page'=>200,
 				'post_status'=>'publish',
 				'orderby'=>'date',
 				'order'=>'DESC',
@@ -63,62 +58,91 @@
 			);
 			$videos = get_posts($args);
 
-			gvsm_generate_xml_file($videos);
+			if(is_array($videos)&&!empty($videos)):
+				gvsm_generate_xml_file($videos);
+			endif;
 		}
-
-
 	}
-	add_action('publish_video', 'gvsm_count_video_posts', 10, 2);
+	add_action('publish_video', 'gvsm_count_video_posts', 10, 0);
+  // add_action('save_video', 'gvsm_count_video_posts', 10, 0);
 
-
-	//Add interval to adjust how often this will run
-	// function gvsm_add_cron_interval( $schedules ) {
-	//     $schedules['five_minutes'] = array(
-	// 			'interval' => 300,
-	// 			'display'  => 'Cada Cinco Minutos'
-	// 		);
-	//     return $schedules;
-	// }
-	// add_filter( 'cron_schedules', 'gvsm_add_cron_interval' );
 
 	function gvsm_generate_xml_file($posts_object){
-
 		$xml = new DOMDocument('1.0', 'UTF-8');
 		$urlset = $xml->createElement('urlset');
 		$urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
 		$urlset->setAttribute('xmlns:video', 'http://www.google.com/schemas/sitemap-video/1.1');
 		$xml->appendChild($urlset);
-		foreach ($posts_object as $p_object) {
-			$vid_permalink = get_the_permalink($p_object->ID);
-			$vid_post_thumbnail_url = get_the_post_thumbnail_url($p_object->ID);
-			$anvato_id = get_post_meta($p_object->ID, 'id_anvato', true);
-			$youtube_id = get_post_meta($p_object->ID, 'id_youtube', true);
-			$vid_publish_date = $p_object->post_date_gmt;
 
-			$anv_title = '';
-			$anv_duration = '';
-			$anv_description = '';
-			$anv_media_url = '';
-			$anv_thumbnail = '';
-			$anv_height = '';
-			$anv_width = '';
+		if(is_array($posts_object)&&!empty($posts_object)):
 
-			if(gettype($anvato_id)==='string'&&$anvato_id!==''){
-				$anv_data = gvsm_get_video_data($anvato_id);
+			foreach($posts_object as $key => $video):
+				$vid_permalink = get_the_permalink($video->ID);
+				$vid_post_thumbnail_url = (get_the_post_thumbnail_url($video->ID)) ? get_the_post_thumbnail_url($video->ID) : plugin_dir_url(__FILE__) . 'assets/poster.png';
+				$anvato_id = get_post_meta($video->ID, 'id_anvato', true);
+				$youtube_id = get_post_meta($video->ID, 'id_youtube', true);
+				$vid_publish_date = $video->post_date_gmt;
 
-				foreach($anv_data['docs'] as $key => $value){
-					$anv_title = $value['c_title_s'];
-					$anv_duration = $value['info']['duration'];
-					$anv_description = $value['c_description_s'];
-					$anv_media_url = $value['media_url'];
-					$anv_thumbnail = $value['thumbnails'][0]['url'];
-					$anv_height = $value['thumbnails'][0]['height'];
-					$anv_width = $value['thumbnails'][0]['width'];
-					$anv_pub_date = gmdate('Y-m-d\TH:i:s\-06:00', $value['c_ts_publish_l']);
+				$anv_title = '';
+				$anv_duration = '';
+				$anv_description = '';
+				$anv_media_url = '';
+				$anv_thumbnail = '';
+				$anv_height = '';
+				$anv_width = '';
 
-					$anv_object = array('url'=>$anv_media_url,'poster'=>$anv_thumbnail,'title'=>$anv_title,'description'=>$anv_description);
-					$anv_player_url = gvsm_get_anvato_player(json_encode($anv_object));
+				if($anvato_id):
+					$anv_data = gvsm_get_video_data($anvato_id);
+					foreach($anv_data['docs'] as $key => $value):
+						$anv_title = $value['c_title_s'];
+						$anv_duration = $value['info']['duration'];
+						$anv_description = $value['c_description_s'];
+						$anv_media_url = $value['media_url'];
+						$anv_thumbnail = $value['thumbnails'][0]['url'];
+						$anv_height = $value['thumbnails'][0]['height'];
+						$anv_width = $value['thumbnails'][0]['width'];
+						$anv_pub_date = gmdate('Y-m-d\TH:i:s\-06:00', $value['c_ts_publish_l']);
 
+						$anv_object = array('url'=>$anv_media_url,'poster'=>$anv_thumbnail,'title'=>$anv_title,'description'=>$anv_description);
+						$anv_player_url = gvsm_get_anvato_player(json_encode($anv_object));
+
+
+						$url = $xml->createElement('url');
+						$url->appendChild($xml->createElement('loc', $vid_permalink));
+
+						$video_node = $xml->createElement('video:video');
+						$video_node->appendChild($xml->createElement('video:thumbnail_loc', $vid_post_thumbnail_url));
+
+						$video_title = $xml->createElement('video:title');
+						$video_title->appendChild($xml->createCDATASection(htmlspecialchars($video->post_title)));
+						$video_node->appendChild($video_title);
+
+						$video_description = $xml->createElement('video:description');
+						$video_description->appendChild($xml->createCDATASection(htmlspecialchars($video->post_excerpt)));
+						$video_node->appendChild($video_description);
+
+						//$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($anv_media_url)));
+						$video_node->appendChild($xml->createElement('video:player_loc', $anv_player_url ));
+						$video_node->appendChild($xml->createElement('video:duration', $anv_duration));
+						$video_node->appendChild($xml->createElement('video:publication_date', $anv_pub_date));
+						$video_node->appendChild($xml->createElement('video:family_friendly', 'yes'));
+
+						$video_restriction = $xml->createElement('video:restriction', 'US');
+						$video_restriction->setAttribute('relationship', 'deny');
+						$video_node->appendChild($video_restriction);
+
+						$video_node->appendChild($xml->createElement('video:live', 'no'));
+
+						$url->appendChild($video_node);
+
+						$urlset->appendChild($url);
+
+					endforeach;
+				elseif($youtube_id):
+					$yt_vid_url = 'https://www.youtube.com/embed/'.$youtube_id;
+					$millis = date('U', strtotime($vid_publish_date));
+					$pubDate = gmdate('Y-m-d\TH:i:s\-06:00', $millis);
+					$duration = gvsm_get_youtube_duration($youtube_id);
 
 					$url = $xml->createElement('url');
 					$url->appendChild($xml->createElement('loc', $vid_permalink));
@@ -127,17 +151,16 @@
 					$video_node->appendChild($xml->createElement('video:thumbnail_loc', $vid_post_thumbnail_url));
 
 					$video_title = $xml->createElement('video:title');
-					$video_title->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_title)));
+					$video_title->appendChild($xml->createCDATASection(htmlspecialchars($video->post_title)));
 					$video_node->appendChild($video_title);
 
 					$video_description = $xml->createElement('video:description');
-					$video_description->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_excerpt)));
+					$video_description->appendChild($xml->createCDATASection(htmlspecialchars($video->post_excerpt)));
 					$video_node->appendChild($video_description);
 
-					$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($anv_media_url)));
-					$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars(wp_get_canonical_url($p_object->ID)) ) );
-					$video_node->appendChild($xml->createElement('video:duration', $anv_duration));
-					$video_node->appendChild($xml->createElement('video:publication_date', $anv_pub_date));
+					$video_node->appendChild($xml->createElement('video:player_loc', $yt_vid_url ));
+					$video_node->appendChild($xml->createElement('video:duration', $duration));
+					$video_node->appendChild($xml->createElement('video:publication_date', $pubDate));
 					$video_node->appendChild($xml->createElement('video:family_friendly', 'yes'));
 
 					$video_restriction = $xml->createElement('video:restriction', 'US');
@@ -149,52 +172,18 @@
 					$url->appendChild($video_node);
 
 					$urlset->appendChild($url);
+				endif;
+			endforeach;
 
-				}
-			}else if(gettype($youtube_id)==='string'&&$youtube_id!==''){
-				$yt_vid_url = 'https://www.youtube.com/watch?v='.$youtube_id;
-				$millis = time($vid_publish_date);
-				$pubDate = gmdate('Y-m-d\TH:i:s\-06:00', $millis);
-				$duration = gvsm_get_youtube_duration($youtube_id);
+			$xml->save('/home/noticieros/web/video_sitemap.xml');	//PROD
+			//$xml->save('/home/bnback/web/video_sitemap.xml');	// STG
+			//$xml->save('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml'); // DEV
 
-				$url = $xml->createElement('url');
-				$url->appendChild($xml->createElement('loc', $vid_permalink));
-
-				$video_node = $xml->createElement('video:video');
-				$video_node->appendChild($xml->createElement('video:thumbnail_loc', $vid_post_thumbnail_url));
-
-				$video_title = $xml->createElement('video:title');
-				$video_title->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_title)));
-				$video_node->appendChild($video_title);
-
-				$video_description = $xml->createElement('video:description');
-				$video_description->appendChild($xml->createCDATASection(htmlspecialchars($p_object->post_excerpt)));
-				$video_node->appendChild($video_description);
-
-				$video_node->appendChild($xml->createElement('video:content_loc', htmlspecialchars($yt_vid_url)));
-				$video_node->appendChild($xml->createElement('video:player_loc', htmlspecialchars(wp_get_canonical_url($p_object->ID))));
-				$video_node->appendChild($xml->createElement('video:duration', $duration));
-				$video_node->appendChild($xml->createElement('video:publication_date', $pubDate));
-				$video_node->appendChild($xml->createElement('video:family_friendly', 'yes'));
-
-				$video_restriction = $xml->createElement('video:restriction', 'US');
-				$video_restriction->setAttribute('relationship', 'deny');
-				$video_node->appendChild($video_restriction);
-
-				$video_node->appendChild($xml->createElement('video:live', 'no'));
-
-				$url->appendChild($video_node);
-
-				$urlset->appendChild($url);
-			}
-		}
-
-		$xml->save('/home/noticieros/web/video_sitemap.xml');
-		// $xml->save('/Users/dev/Sites/noticieros.televisa.com/video_sitemap.xml');
+		endif;
 	}
 
 	function gvsm_get_video_data($videoId){
-		$requestUrl = 'https://api.anvato.net/v2/feed/K2KWCWUDQ5YXI2BNEFDWAAA?filters[]=obj_id:'.$videoId;
+		$requestUrl = 'https://api.anvato.net/v2/feed/KRDRVW4BFW3GK2U2QWFA7DC?filters[]=obj_id:'.$videoId;
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL, $requestUrl);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -213,21 +202,29 @@
 	}
 
 	function gvsm_get_youtube_duration($videoId){
-		$apikey = 'AIzaSyC6zVkEIkrXXsvuAy5Z0QiDQld-ZPz1zVI';
-		$dur = file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='.$videoId.'&key='.$apikey);
-		$vid_duration = json_decode($dur, true);
-		$duration = '';
-		foreach ($vid_duration['items'] as $vidTime) {
-			$duration = $vidTime['contentDetails']['duration'];
+		// Api key generada 2020-09-07 holkan.l@logistica101.com
+		$apikey = 'AIzaSyCA0ulDhDpEHIaK7YtUvtEssWb81M2Wud4';
+		if($dur = file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='.$videoId.'&key='.$apikey)){
+			$vid_duration = json_decode($dur, true);
+			$duration = '';
+			foreach ($vid_duration['items'] as $vidTime) {
+				$duration = $vidTime['contentDetails']['duration'];
+			}
+			return gvsm_ISO8601ToSeconds($duration);
 		}
-		return gvsm_ISO8601ToSeconds($duration);
+		return 0;
 	}
 
 	function gvsm_ISO8601ToSeconds($ISO8601){
-    	$interval = new \DateInterval($ISO8601);
-    	return ($interval->d * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s;
-	}
+    $pattern = '/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/';
+    preg_match_all($pattern, $ISO8601, $matches);
 
-
-
+    if($ISO8601 != '' && gettype($ISO8601) == 'string'){
+      if( is_array($matches) && !empty($matches[0]) ){
+        $interval = new DateInterval($ISO8601);
+        return ($interval->d * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s;
+      }
+    }
+    return '0';
+  }
 ?>
